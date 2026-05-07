@@ -1,0 +1,86 @@
+{
+  "expo": {
+    "name": "hawaa-ride",
+    "slug": "hawaa-ride",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "hawaa-ride",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "extra": {
+      "firebase": {
+        "apiKey": "AIzaSyDpfEQO6p898oES2GQ_ys8WA7ZpFZ0RDPQ",
+        "authDomain": "hawaa-ride.firebaseapp.com",
+        "projectId": "hawaa-ride",
+        "storageBucket": "hawaa-ride.firebasestorage.app",
+        "messagingSenderId": "529210232438",
+        "appId": "1:529210232438:web:4a1c47d5e971aa18b39957",
+        "measurementId": "G-EBZGVENPWP"
+      }
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png",
+      "meta": {
+        "name": "Hawaa Ride",
+        "short_name": "Hawaa",
+        "description": "Ride booking app for Maldives",
+        "theme_color": "#0B9E3D",
+        "background_color": "#ffffff",
+        "orientation": "portrait",
+        "icons": [
+          {
+            "src": "./logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+          },
+          {
+            "src": "./logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+          }
+        ]
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
