@@ -146,6 +146,10 @@ export default function DriverRideScreen() {
 
   return (
     <View style={styles.container}>
+      <Pressable style={styles.homeBtn} onPress={() => router.replace('/(driver)')}>
+        <ThemedText style={styles.homeBtnText}>🏠 Home</ThemedText>
+      </Pressable>
+
       <MapView
         style={StyleSheet.absoluteFill}
         initialRegion={ride.pickup ? { ...ride.pickup, latitudeDelta: 0.02, longitudeDelta: 0.02 } : undefined}
@@ -507,6 +511,28 @@ const styles = StyleSheet.create({
   },
   navBtnText: {
     fontSize: 24,
+  },
+  homeBtn: {
+    position: 'absolute',
+    top: 48,
+    left: 16,
+    zIndex: 100,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  homeBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#333',
   },
   navigateBtn: {
     backgroundColor: '#fff',

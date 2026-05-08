@@ -1,9 +1,9 @@
 import { MapView, Marker, Polyline } from '@/src/components/Map';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { off, onValue, ref } from 'firebase/database';
 import { DocumentSnapshot, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Button, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { MessageModal } from '@/src/components/MessageModal';
@@ -12,6 +12,7 @@ import type { RideDoc } from '@/src/ride/types';
 import type { LatLng } from '@/src/utils/geo';
 
 export default function RiderRideScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const rideId = typeof id === 'string' ? id : '';
 
@@ -88,6 +89,10 @@ export default function RiderRideScreen() {
 
   return (
     <View style={styles.container}>
+      <Pressable style={styles.homeBtn} onPress={() => router.replace('/(rider)')}>
+        <ThemedText style={styles.homeBtnText}>🏠 Home</ThemedText>
+      </Pressable>
+
       <MapView
         ref={(r) => {
           mapRef.current = r;
@@ -145,5 +150,27 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#ddd',
     backgroundColor: 'rgba(255,255,255,0.95)',
+  },
+  homeBtn: {
+    position: 'absolute',
+    top: 48,
+    left: 16,
+    zIndex: 100,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  homeBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#333',
   },
 });
