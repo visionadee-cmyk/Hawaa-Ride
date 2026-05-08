@@ -98,17 +98,23 @@ export default function DriverHome() {
   };
 
   useEffect(() => {
+    console.log('[Driver] Rides effect running', { online: profile?.online, approved: profile?.approvalStatus, driverLoc: !!driverLoc });
     if (!profile?.online || profile.approvalStatus !== 'approved') {
+      console.log('[Driver] Not showing rides - not online or not approved');
       setRides([]);
       return;
     }
 
-    // Show all searching rides (removed vehicleType filter for debugging)
+    // Show all searching rides
     const q = query(collection(db, 'rides'), where('status', '==', 'searching'));
+    console.log('[Driver] Listening for searching rides...');
     const unsub = onSnapshot(q, (snap: any) => {
       const items: Array<RideDoc & { id: string }> = [];
       snap.forEach((d: any) => items.push({ id: d.id, ...(d.data() as RideDoc) }));
+      console.log('[Driver] Got rides update:', items.length);
       setRides(items);
+    }, (err: any) => {
+      console.log('[Driver] Rides listener error:', err?.message || err);
     });
     return unsub;
   }, [profile?.online, profile?.approvalStatus]);
@@ -117,12 +123,17 @@ export default function DriverHome() {
   const visibleRides = useMemo(() => {
     // Don't show any ride requests if driver has an active ride
     if (currentRide) return [];
-    if (!driverLoc || !profile?.notificationRangeKm) return rides;
-    return rides.filter((ride) => {
+    if (!driverLoc || !profile?.notificationRangeKm) {
+      console.log('[Driver] Showing all rides (no location filter)', { driverLoc: !!driverLoc, range: profile?.notificationRangeKm });
+      return rides;
+    }
+    const filtered = rides.filter((ride) => {
       if (rejectedRideIds[ride.id]) return false;
       const km = haversineKm(driverLoc, ride.pickup);
       return km <= (profile.notificationRangeKm || 5);
     });
+    console.log('[Driver] Filtered rides:', { total: rides.length, visible: filtered.length, range: profile.notificationRangeKm });
+    return filtered;
   }, [rides, driverLoc, profile?.notificationRangeKm, currentRide, rejectedRideIds]);
 
   // Keep alerting driver while a visible searching ride exists (until accepted by someone)
@@ -435,9 +446,18 @@ export default function DriverHome() {
             />
           </View>
         ) : (
-          <ThemedText type="subtitle" style={{ padding: 16, paddingBottom: 8 }}>
-            Ride Requests ({visibleRides.length})
-          </ThemedText>
+          <>
+            <ThemedText type="subtitle" style={{ padding: 16, paddingBottom: 8 }}>
+              Ride Requests ({visibleRides.length})
+            </ThemedText>
+            {__DEV__ && (
+              <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+                <ThemedText style={{ fontSize: 11, color: profile?.online && profile?.approvalStatus === 'approved' ? '#4CAF50' : '#f44336' }}>
+                  Debug: {profile?.online ? '🟢 Online' : '🔴 Offline'} | {profile?.approvalStatus === 'approved' ? '✅ Approved' : '⛔ ' + (profile?.approvalStatus || 'unknown')} | {driverLoc ? '📍 Location OK' : '❌ No location'} | Total: {rides.length}
+                </ThemedText>
+              </View>
+            )}
+          </>
         )}
         {!currentRide && visibleRides[0] ? (
           <View style={styles.bidCard}>

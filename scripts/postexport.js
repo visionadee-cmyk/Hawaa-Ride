@@ -33,7 +33,7 @@ function injectIntoHead(html, tags) {
   }
 
   const manifestSrc = path.join(root, 'public', 'manifest.json');
-  const logoSrc = path.join(root, 'public', 'logo.png');
+  const logoSrc = path.join(root, 'logo.png');
 
   if (fs.existsSync(manifestSrc)) {
     copyFile(manifestSrc, path.join(distDir, 'manifest.json'));
