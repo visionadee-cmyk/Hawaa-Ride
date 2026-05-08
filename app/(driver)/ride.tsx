@@ -6,6 +6,7 @@ import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } fro
 
 import { ThemedText } from '@/components/themed-text';
 import { MapView, Marker, Polyline } from '@/src/components/Map';
+import { MessageModal } from '@/src/components/MessageModal';
 import { SwipeButton } from '@/src/components/SwipeButton';
 import { db } from '@/src/firebase';
 import type { RideDoc } from '@/src/ride/types';
@@ -20,6 +21,7 @@ export default function DriverRideScreen() {
   const [paid, setPaid] = useState(false);
   const [rating, setRating] = useState<number>(0);
   const [driverLoc, setDriverLoc] = useState<LatLng | null>(null);
+  const [showMessages, setShowMessages] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -193,7 +195,7 @@ export default function DriverRideScreen() {
             {ride.riderName || 'Customer'}
           </ThemedText>
           <View style={{ flex: 1 }} />
-          <Pressable style={styles.iconBtn} onPress={() => {}}>
+          <Pressable style={styles.iconBtn} onPress={() => setShowMessages(true)}>
             <ThemedText style={styles.iconText}>💬</ThemedText>
           </Pressable>
           <Pressable style={styles.iconBtn} onPress={() => {}}>
@@ -244,6 +246,14 @@ export default function DriverRideScreen() {
           </Pressable>
         </View>
       )}
+
+      <MessageModal
+        visible={showMessages}
+        rideId={id || ''}
+        currentUserRole="driver"
+        otherPartyName={ride?.riderName || 'Rider'}
+        onClose={() => setShowMessages(false)}
+      />
 
       {showCompleted && (
         <View style={styles.completeOverlay}>

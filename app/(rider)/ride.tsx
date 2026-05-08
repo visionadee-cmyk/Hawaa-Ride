@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Button, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { MessageModal } from '@/src/components/MessageModal';
 import { db, rtdb } from '@/src/firebase';
 import type { RideDoc } from '@/src/ride/types';
 import type { LatLng } from '@/src/utils/geo';
@@ -17,6 +18,7 @@ export default function RiderRideScreen() {
   const mapRef = useRef<MapView | null>(null);
 
   const [ride, setRide] = useState<(RideDoc & { id: string }) | null>(null);
+  const [showMessages, setShowMessages] = useState(false);
   const [driverLocation, setDriverLocation] = useState<LatLng | null>(null);
 
   useEffect(() => {
@@ -107,12 +109,26 @@ export default function RiderRideScreen() {
           Driver: {ride.driverId ? ride.driverId.slice(0, 8) + '…' : 'Searching…'}
         </ThemedText>
 
+        {ride.driverId && (
+          <View style={{ marginTop: 10, flexDirection: 'row', gap: 10 }}>
+            <Button title="Message Driver" onPress={() => setShowMessages(true)} />
+          </View>
+        )}
+
         {ride.status === 'searching' ? (
           <View style={{ marginTop: 10 }}>
             <Button title="Cancel" onPress={cancel} />
           </View>
         ) : null}
       </View>
+
+      <MessageModal
+        visible={showMessages}
+        rideId={rideId}
+        currentUserRole="rider"
+        otherPartyName="Driver"
+        onClose={() => setShowMessages(false)}
+      />
     </View>
   );
 }
