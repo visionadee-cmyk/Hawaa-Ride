@@ -1,11 +1,13 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { useDriverSettings } from '@/src/settings/DriverSettingsContext';
 
 export default function BackgroundRestrictions() {
   const router = useRouter();
+  const { update } = useDriverSettings();
 
   return (
     <ScrollView style={styles.container}>
@@ -23,7 +25,7 @@ export default function BackgroundRestrictions() {
         <ThemedText style={styles.primaryBtnText}>OK</ThemedText>
       </Pressable>
 
-      <Pressable style={styles.secondaryBtn} onPress={() => router.back()}>
+      <Pressable style={styles.secondaryBtn} onPress={() => { update({ restrictionsSkipped: true }); router.back(); }}>
         <ThemedText style={styles.secondaryBtnText}>Skip and don&apos;t ask again</ThemedText>
       </Pressable>
     </ScrollView>

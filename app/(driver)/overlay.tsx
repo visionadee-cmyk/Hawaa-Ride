@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { useDriverSettings } from '@/src/settings/DriverSettingsContext';
 
 export default function ScreenOverlay() {
   const router = useRouter();
-  const [enabled, setEnabled] = useState(true);
+  const { settings, update } = useDriverSettings();
 
   return (
     <ScrollView style={styles.container}>
@@ -23,10 +24,10 @@ export default function ScreenOverlay() {
       <View style={styles.row}>
         <ThemedText style={styles.label}>Enable screen overlay</ThemedText>
         <Switch
-          value={enabled}
-          onValueChange={setEnabled}
+          value={settings.overlayEnabled}
+          onValueChange={(v) => update({ overlayEnabled: v })}
           trackColor={{ false: '#cfcfcf', true: '#19A64B' }}
-          thumbColor={enabled ? '#fff' : '#fff'}
+          thumbColor={settings.overlayEnabled ? '#fff' : '#fff'}
         />
       </View>
     </ScrollView>

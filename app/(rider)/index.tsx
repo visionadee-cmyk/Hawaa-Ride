@@ -20,6 +20,14 @@ export default function RiderHome() {
 
   const mapRef = useRef<MapView | null>(null);
 
+  const NEARBY_RADIUS_KM = 5;
+  const nearbyDelta = useMemo(() => {
+    // 1 degree latitude ~= 111km. We want ~2 * radius visible (diameter).
+    const diameterKm = NEARBY_RADIUS_KM * 2;
+    const delta = Math.max(0.02, diameterKm / 111);
+    return { latitudeDelta: delta, longitudeDelta: delta };
+  }, []);
+
   const [pickup, setPickup] = useState<LatLng | null>(null);
   const [dropoff, setDropoff] = useState<LatLng | null>(null);
   const [waypoints, setWaypoints] = useState<Array<{ name: string; latlng: LatLng }>>([]);
@@ -141,16 +149,15 @@ export default function RiderHome() {
     if (!currentLocation) return;
     mapRef.current?.animateToRegion({
       ...currentLocation,
-      latitudeDelta: 0.02,
-      longitudeDelta: 0.02,
+      ...nearbyDelta,
     });
-  }, [mapReady, currentLocation]);
+  }, [mapReady, currentLocation, nearbyDelta]);
 
   const recenterToCurrentLocation = async () => {
     const next = await fetchCurrentLocation();
     if (!next) return;
     setCurrentLocation(next);
-    mapRef.current?.animateToRegion({ ...next, latitudeDelta: 0.02, longitudeDelta: 0.02 });
+    mapRef.current?.animateToRegion({ ...next, ...nearbyDelta });
   };
 
   const geocodePlace = async (q: string) => {
@@ -390,7 +397,7 @@ export default function RiderHome() {
             mapRef.current = r;
           }}
           style={StyleSheet.absoluteFill}
-          initialRegion={pickup ? { ...pickup, latitudeDelta: 0.02, longitudeDelta: 0.02 } : undefined}
+          initialRegion={pickup ? { ...pickup, ...nearbyDelta } : currentLocation ? { ...currentLocation, ...nearbyDelta } : undefined}
           onLongPress={(e: any) => setDropoff(e.nativeEvent.coordinate)}
           onMapReady={() => setMapReady(true)}
           showsUserLocation={true}

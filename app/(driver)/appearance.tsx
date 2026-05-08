@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { useDriverSettings } from '@/src/settings/DriverSettingsContext';
 
 const MODES = [
   { label: 'Use device settings', value: 'system' },
@@ -12,7 +13,8 @@ const MODES = [
 
 export default function AppAppearance() {
   const router = useRouter();
-  const [selected, setSelected] = useState('light');
+  const { settings, update } = useDriverSettings();
+  const selected = settings.appearance;
 
   return (
     <ScrollView style={styles.container}>
@@ -23,7 +25,7 @@ export default function AppAppearance() {
       <ThemedText type="title" style={styles.title}>App appearance</ThemedText>
 
       {MODES.map((m) => (
-        <Pressable key={m.value} style={styles.item} onPress={() => setSelected(m.value)}>
+        <Pressable key={m.value} style={styles.item} onPress={() => update({ appearance: m.value as any })}>
           <ThemedText style={styles.label}>{m.label}</ThemedText>
           {selected === m.value && <ThemedText style={styles.check}>✓</ThemedText>}
         </Pressable>

@@ -19,12 +19,15 @@ import { useAuth } from '@/src/auth/AuthContext';
 import { MapView, Marker, Polyline } from '@/src/components/Map';
 import { db, rtdb } from '@/src/firebase';
 import type { DriverProfile, RideDoc } from '@/src/ride/types';
+import { useDriverSettings } from '@/src/settings/DriverSettingsContext';
+import { playRingtone } from '@/src/settings/sound';
 import type { LatLng } from '@/src/utils/geo';
 import { haversineKm } from '@/src/utils/geo';
 
 export default function DriverHome() {
   const router = useRouter();
   const { firebaseUser, logout } = useAuth();
+  const { settings } = useDriverSettings();
   const mapRef = useRef<any>(null);
 
   const [profile, setProfile] = useState<DriverProfile | null>(null);
@@ -85,32 +88,12 @@ export default function DriverHome() {
     })();
   }, [firebaseUser, profile?.approvalStatus]);
 
-  const playWebBeep = () => {
-    if (Platform.OS !== 'web') return;
-    try {
-      const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
-      if (!Ctx) return;
-      const ctx = new Ctx();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = 880;
-      g.gain.value = 0.0001;
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start();
-      const now = ctx.currentTime;
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(0.25, now + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-      o.stop(now + 0.26);
-      o.onended = () => {
-        try {
-          ctx.close();
-        } catch {}
-      };
-    } catch {
-      // ignore
+  const playAlert = () => {
+    if (settings.soundEnabled) {
+      playRingtone(settings.ringtone, settings.notificationVolume);
+    }
+    if (settings.vibrationEnabled && Platform.OS !== 'web') {
+      Vibration.vibrate(250);
     }
   };
 
@@ -148,12 +131,10 @@ export default function DriverHome() {
     const activeRequestId = visibleRides[0]?.id;
     if (!activeRequestId) return;
 
-    // Vibrate once immediately, then repeat every 8 seconds while still visible
-    if (Platform.OS === 'web') playWebBeep();
-    else Vibration.vibrate(250);
+    // Alert once immediately, then repeat every 8 seconds while still visible
+    playAlert();
     const t = setInterval(() => {
-      if (Platform.OS === 'web') playWebBeep();
-      else Vibration.vibrate(250);
+      playAlert();
     }, 8000);
     return () => clearInterval(t);
   }, [visibleRides, currentRide]);

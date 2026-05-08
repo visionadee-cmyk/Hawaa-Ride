@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 
 const MENU_ITEMS = [
+  { label: 'Notifications', icon: '🔔', route: '/(driver)/notifications' },
   { label: 'Billing plan', icon: '📋', route: '/(driver)/billing' },
   { label: 'Services', icon: '📋', route: '/(driver)/services' },
   { label: 'Background restrictions', icon: 'ℹ️', route: '/(driver)/restrictions' },
