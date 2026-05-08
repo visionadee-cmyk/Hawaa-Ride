@@ -242,28 +242,81 @@ export default function RiderHome() {
   ];
   
   const nominatimSearch = async (q: string) => {
-    const trimmed = q.trim().toLowerCase();
-    if (!trimmed || trimmed.length < 1) return [];
+    const trimmed = q.trim();
+    if (!trimmed || trimmed.length < 2) return [];
     
-    // Filter common places by query
-    const matched = commonPlaces.filter(p => 
-      p.name.toLowerCase().includes(trimmed)
-    );
-    
-    if (matched.length > 0) {
-      return matched.slice(0, 10);
+    try {
+      // Use OpenStreetMap Nominatim API for real addresses
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed + ', Maldives')}&limit=15&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'HawaaRide/1.0',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+      
+      const data = await response.json();
+      
+      if (Array.isArray(data) && data.length > 0) {
+        // Format results with proper display names including road/street info
+        const results = data.map((item: any) => {
+          let displayName = item.display_name;
+          
+          // Try to get a cleaner name with road/street info
+          if (item.address) {
+            const parts = [];
+            if (item.address.road || item.address.street) {
+              parts.push(item.address.road || item.address.street);
+            }
+            if (item.address.neighbourhood) {
+              parts.push(item.address.neighbourhood);
+            }
+            if (item.address.suburb) {
+              parts.push(item.address.suburb);
+            }
+            if (item.address.city || item.address.town || item.address.village) {
+              parts.push(item.address.city || item.address.town || item.address.village);
+            }
+            
+            if (parts.length > 0) {
+              displayName = parts.join(', ');
+            }
+          }
+          
+          return {
+            name: displayName,
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+          };
+        });
+        
+        return results;
+      }
+      
+      return [];
+    } catch (error) {
+      console.log('Nominatim search error:', error);
+      // Fallback to common places if API fails
+      const lowerQ = trimmed.toLowerCase();
+      const matched = commonPlaces.filter(p => 
+        p.name.toLowerCase().includes(lowerQ)
+      );
+      if (matched.length > 0) {
+        return matched.slice(0, 10);
+      }
+      const startsWith = commonPlaces.filter(p => 
+        p.name.toLowerCase().startsWith(lowerQ)
+      );
+      if (startsWith.length > 0) {
+        return startsWith.slice(0, 10);
+      }
+      return [];
     }
-    
-    // If no match, return all places that start with the query
-    const startsWith = commonPlaces.filter(p => 
-      p.name.toLowerCase().startsWith(trimmed)
-    );
-    
-    if (startsWith.length > 0) {
-      return startsWith.slice(0, 10);
-    }
-    
-    return [];
   };
 
   useEffect(() => {
