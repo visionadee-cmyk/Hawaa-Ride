@@ -508,7 +508,7 @@ export default function RiderHome() {
         </MapView>
 
         <Pressable style={styles.myLocationBtn} onPress={recenterToCurrentLocation}>
-          <ThemedText style={styles.myLocationText}>📍</ThemedText>
+          <ThemedText style={styles.myLocationText}>●</ThemedText>
         </Pressable>
 
         {lastDropoff && !activeRide && (
@@ -524,22 +524,22 @@ export default function RiderHome() {
               });
             }}
           >
-            <ThemedText style={styles.lastLocationText}>🏁</ThemedText>
+            <ThemedText style={styles.lastLocationText}>◉</ThemedText>
           </Pressable>
         )}
       </View>
 
       <Pressable style={styles.hamburgerBtn} onPress={() => setDrawerOpen(true)}>
-        <ThemedText style={styles.hamburgerText}>≡</ThemedText>
+        <ThemedText style={styles.hamburgerText}>☰</ThemedText>
       </Pressable>
 
       <Pressable style={styles.paymentPill} onPress={() => setPaymentMethod(p => p === 'cash' ? 'card' : 'cash')}>
-        <ThemedText style={styles.paymentText}>{paymentMethod === 'cash' ? '💵 Cash' : '💳 Card'}</ThemedText>
+        <ThemedText style={styles.paymentText}>{paymentMethod === 'cash' ? '◆ Cash' : '◇ Card'}</ThemedText>
       </Pressable>
 
       {activeRide && (
         <View style={styles.activeRideBanner}>
-          <ThemedText style={styles.activeRideTitle}>🚗 Driver is on the way</ThemedText>
+          <ThemedText style={styles.activeRideTitle}>▶ Driver is on the way</ThemedText>
           <ThemedText style={styles.activeRideSub}>{activeRide.pickupName || 'Pickup location'}</ThemedText>
           <Pressable style={styles.activeRideBtn} onPress={() => router.push({ pathname: '/(rider)/ride', params: { id: activeRide.id } })}>
             <ThemedText style={styles.activeRideBtnText}>View Ride</ThemedText>
@@ -552,7 +552,7 @@ export default function RiderHome() {
           style={styles.goToTripBtnRider} 
           onPress={() => router.push({ pathname: '/(rider)/ride', params: { id: activeRide.id } })}
         >
-          <ThemedText style={styles.goToTripTextRider}>🚗 Go to Trip</ThemedText>
+          <ThemedText style={styles.goToTripTextRider}>▶ Go to Trip</ThemedText>
         </Pressable>
       )}
 
@@ -619,7 +619,7 @@ export default function RiderHome() {
                         setPickupSuggestions([]);
                       }}
                     >
-                      <ThemedText style={styles.suggestText}>📍 {item.name}</ThemedText>
+                      <ThemedText style={styles.suggestText}>● {item.name}</ThemedText>
                     </Pressable>
                   ))}
                 </View>
@@ -660,7 +660,7 @@ export default function RiderHome() {
                         setDropoffSuggestions([]);
                       }}
                     >
-                      <ThemedText style={styles.suggestText}>📍 {item.name}</ThemedText>
+                      <ThemedText style={styles.suggestText}>● {item.name}</ThemedText>
                     </Pressable>
                   ))}
                 </View>
@@ -731,7 +731,7 @@ export default function RiderHome() {
                   setActiveWaypointIndex(null);
                 }}
               >
-                <ThemedText style={styles.suggestText}>📍 {item.name}</ThemedText>
+                <ThemedText style={styles.suggestText}>● {item.name}</ThemedText>
               </Pressable>
             ))}
           </View>

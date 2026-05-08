@@ -406,7 +406,7 @@ export default function DriverHome() {
           style={styles.goToTripBtn} 
           onPress={() => router.push({ pathname: '/(driver)/ride', params: { id: currentRide.id } })}
         >
-          <ThemedText style={styles.goToTripText}>🚗 Go to Trip</ThemedText>
+          <ThemedText style={styles.goToTripText}>▶ Go to Trip</ThemedText>
         </Pressable>
       ) : null}
 
@@ -439,10 +439,10 @@ export default function DriverHome() {
               <ThemedText style={styles.drawerItemText}>Recent orders</ThemedText>
             </Pressable>
             <Pressable style={styles.drawerItem} onPress={() => { setDrawerOpen(false); router.push('/(driver)/settings'); }}>
-              <ThemedText style={styles.drawerItemText}>⚙️ Settings</ThemedText>
+              <ThemedText style={styles.drawerItemText}>⚙ Settings</ThemedText>
             </Pressable>
             <Pressable style={styles.drawerItem} onPress={() => { setDrawerOpen(false); router.push('/(driver)/range'); }}>
-              <ThemedText style={styles.drawerItemText}>📍 Notification Range</ThemedText>
+              <ThemedText style={styles.drawerItemText}>◎ Notification Range</ThemedText>
             </Pressable>
 
             <View style={{ marginTop: 16 }}>
@@ -485,7 +485,7 @@ export default function DriverHome() {
             {__DEV__ && (
               <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
                 <ThemedText style={{ fontSize: 11, color: profile?.online && profile?.approvalStatus === 'approved' ? '#4CAF50' : '#f44336' }}>
-                  Debug: {profile?.online ? '🟢 Online' : '🔴 Offline'} | {profile?.approvalStatus === 'approved' ? '✅ Approved' : '⛔ ' + (profile?.approvalStatus || 'unknown')} | {driverLoc ? '📍 Location OK' : '❌ No location'} | Total: {rides.length}
+                  Debug: {profile?.online ? '● Online' : '○ Offline'} | {profile?.approvalStatus === 'approved' ? '✓ Approved' : '✕ ' + (profile?.approvalStatus || 'unknown')} | {driverLoc ? '◎ Location OK' : '✕ No location'} | Total: {rides.length}
                 </ThemedText>
               </View>
             )}
