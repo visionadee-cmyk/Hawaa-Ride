@@ -55,8 +55,9 @@ export default function RiderHome() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [mapReady, setMapReady] = useState(false);
-  const [activeRide, setActiveRide] = useState<{ id: string; status: string; pickupName?: string; dropoffName?: string } | null>(null);
+  const [activeRide, setActiveRide] = useState<{ id: string; status: string; pickupName?: string; dropoffName?: string; dropoff?: LatLng; dropoffQuery?: string } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  const [lastDropoff, setLastDropoff] = useState<{ location: LatLng; name: string } | null>(null);
 
   const RECENT_PLACES = [
     { name: 'Home', icon: '🏠', lat: 4.1755, lng: 73.5093 },
@@ -116,7 +117,18 @@ export default function RiderHome() {
         const data = d.data();
         if (data.status === 'searching' || data.status === 'driver_assigned' || 
             data.status === 'driver_arriving' || data.status === 'trip_started') {
-          found = { id: d.id, status: data.status, pickupName: data.pickupName, dropoffName: data.dropoffName };
+          found = { 
+            id: d.id, 
+            status: data.status, 
+            pickupName: data.pickupName, 
+            dropoffName: data.dropoffName,
+            dropoff: data.dropoff,
+            dropoffQuery: data.dropoffName
+          };
+          // Save dropoff as last location when ride is active
+          if (data.dropoff && data.dropoffName) {
+            setLastDropoff({ location: data.dropoff, name: data.dropoffName });
+          }
         }
       });
       setActiveRide(found);
@@ -135,7 +147,17 @@ export default function RiderHome() {
           const data = d.data();
           if (data.status === 'searching' || data.status === 'driver_assigned' || 
               data.status === 'driver_arriving' || data.status === 'trip_started') {
-            found = { id: d.id, status: data.status, pickupName: data.pickupName, dropoffName: data.dropoffName };
+            found = { 
+              id: d.id, 
+              status: data.status, 
+              pickupName: data.pickupName, 
+              dropoffName: data.dropoffName,
+              dropoff: data.dropoff,
+              dropoffQuery: data.dropoffName
+            };
+            if (data.dropoff && data.dropoffName) {
+              setLastDropoff({ location: data.dropoff, name: data.dropoffName });
+            }
           }
         });
         setActiveRide(found);
@@ -488,6 +510,23 @@ export default function RiderHome() {
         <Pressable style={styles.myLocationBtn} onPress={recenterToCurrentLocation}>
           <ThemedText style={styles.myLocationText}>📍</ThemedText>
         </Pressable>
+
+        {lastDropoff && !activeRide && (
+          <Pressable 
+            style={styles.lastLocationBtn} 
+            onPress={() => {
+              setDropoff(lastDropoff.location);
+              setDropoffQuery(lastDropoff.name);
+              mapRef.current?.animateToRegion({
+                ...lastDropoff.location,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              });
+            }}
+          >
+            <ThemedText style={styles.lastLocationText}>🏁</ThemedText>
+          </Pressable>
+        )}
       </View>
 
       <Pressable style={styles.hamburgerBtn} onPress={() => setDrawerOpen(true)}>
@@ -1048,6 +1087,22 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   myLocationText: {
+    fontSize: 20,
+  },
+  lastLocationBtn: {
+    position: 'absolute',
+    bottom: 80,
+    right: 16,
+    zIndex: 100,
+    padding: 12,
+    backgroundColor: '#4CAF50',
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  lastLocationText: {
     fontSize: 20,
   },
   topCard: {
