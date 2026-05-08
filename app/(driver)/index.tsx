@@ -131,7 +131,9 @@ export default function DriverHome() {
     const filtered = rides.filter((ride) => {
       if (rejectedRideIds[ride.id]) return false;
       const km = haversineKm(driverLoc, ride.pickup);
-      return km <= (profile.notificationRangeKm || 5);
+      console.log('[Driver] Ride distance check:', { rideId: ride.id, km: km.toFixed(2), range: profile.notificationRangeKm });
+      // TEMPORARILY DISABLED FOR TESTING: return km <= (profile.notificationRangeKm || 5);
+      return true; // Show all rides for now
     });
     console.log('[Driver] Filtered rides:', { total: rides.length, visible: filtered.length, range: profile.notificationRangeKm });
     return filtered;
