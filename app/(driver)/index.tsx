@@ -41,6 +41,7 @@ export default function DriverHome() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectedRideIds, setRejectedRideIds] = useState<Record<string, true>>({});
+  const [notificationMinimized, setNotificationMinimized] = useState(false);
 
   useEffect(() => {
     if (!firebaseUser) return;
@@ -459,8 +460,11 @@ export default function DriverHome() {
             )}
           </>
         )}
-        {!currentRide && visibleRides[0] ? (
+        {!currentRide && visibleRides[0] && !notificationMinimized ? (
           <View style={styles.bidCard}>
+            <Pressable style={styles.minimizeBtn} onPress={() => setNotificationMinimized(true)}>
+              <ThemedText style={styles.minimizeText}>✕</ThemedText>
+            </Pressable>
             <View style={styles.bidCardHeader}>
               <ThemedText style={styles.bidEta}>1 mins</ThemedText>
               <ThemedText style={styles.bidFare}>MVR {visibleRides[0].estimatedFare}</ThemedText>
@@ -514,7 +518,13 @@ export default function DriverHome() {
             </View>
           </View>
         ) : (
-          !currentRide ? <ThemedText style={{ paddingHorizontal: 16, paddingBottom: 16 }}>No requests</ThemedText> : null
+          !currentRide && visibleRides[0] && notificationMinimized ? (
+            <Pressable style={styles.miniNotification} onPress={() => setNotificationMinimized(false)}>
+              <ThemedText style={styles.miniNotifText}>🚗 New Request</ThemedText>
+            </Pressable>
+          ) : (
+            !currentRide ? <ThemedText style={{ paddingHorizontal: 16, paddingBottom: 16 }}>No requests</ThemedText> : null
+          )
         )}
       </View>
     </View>
@@ -782,6 +792,41 @@ const styles = StyleSheet.create({
     color: '#111',
     fontWeight: '900',
     fontSize: 16,
+  },
+  minimizeBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  minimizeText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '700',
+  },
+  miniNotification: {
+    position: 'absolute',
+    right: 16,
+    bottom: 180,
+    backgroundColor: '#FF9800',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  miniNotifText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 12,
   },
   rideCard: {
     backgroundColor: '#fff',
