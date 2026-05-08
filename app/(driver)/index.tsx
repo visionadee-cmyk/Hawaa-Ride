@@ -12,7 +12,7 @@ import {
     where,
 } from 'firebase/firestore';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Button, Pressable, StyleSheet, Switch, Vibration, View } from 'react-native';
+import { ActivityIndicator, Alert, Button, Platform, Pressable, StyleSheet, Switch, Vibration, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { useAuth } from '@/src/auth/AuthContext';
@@ -75,9 +75,44 @@ export default function DriverHome() {
         }
       );
 
-      return () => sub.remove();
+      return () => {
+        try {
+          if (sub && typeof (sub as any).remove === 'function') (sub as any).remove();
+        } catch {
+          // ignore on web
+        }
+      };
     })();
   }, [firebaseUser, profile?.approvalStatus]);
+
+  const playWebBeep = () => {
+    if (Platform.OS !== 'web') return;
+    try {
+      const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = 880;
+      g.gain.value = 0.0001;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      const now = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.25, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      o.stop(now + 0.26);
+      o.onended = () => {
+        try {
+          ctx.close();
+        } catch {}
+      };
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     if (!profile?.online || profile.approvalStatus !== 'approved') {
@@ -114,9 +149,11 @@ export default function DriverHome() {
     if (!activeRequestId) return;
 
     // Vibrate once immediately, then repeat every 8 seconds while still visible
-    Vibration.vibrate(250);
+    if (Platform.OS === 'web') playWebBeep();
+    else Vibration.vibrate(250);
     const t = setInterval(() => {
-      Vibration.vibrate(250);
+      if (Platform.OS === 'web') playWebBeep();
+      else Vibration.vibrate(250);
     }, 8000);
     return () => clearInterval(t);
   }, [visibleRides, currentRide]);
@@ -524,6 +561,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 4,
+    color: '#111',
   },
   todayAmount: {
     fontSize: 36,
