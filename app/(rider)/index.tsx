@@ -436,6 +436,15 @@ export default function RiderHome() {
         </View>
       )}
 
+      {activeRide && (
+        <Pressable 
+          style={styles.goToTripBtnRider} 
+          onPress={() => router.push({ pathname: '/(rider)/ride', params: { id: activeRide.id } })}
+        >
+          <ThemedText style={styles.goToTripTextRider}>🚗 Go to Trip</ThemedText>
+        </Pressable>
+      )}
+
       <View style={styles.topCard}>
         <ScrollView style={styles.topCardScroll} contentContainerStyle={styles.topCardContent} showsVerticalScrollIndicator={false}>
         <View style={styles.serviceTabs}>
@@ -932,6 +941,25 @@ const styles = StyleSheet.create({
   activeRideBtnText: {
     color: '#fff',
     fontWeight: '800',
+    fontSize: 15,
+  },
+  goToTripBtnRider: {
+    position: 'absolute',
+    bottom: 24,
+    right: 16,
+    backgroundColor: '#FF9800',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  goToTripTextRider: {
+    color: '#fff',
+    fontWeight: '700',
     fontSize: 15,
   },
   myLocationBtn: {

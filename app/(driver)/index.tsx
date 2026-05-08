@@ -401,6 +401,15 @@ export default function DriverHome() {
         <ThemedText style={styles.sosText}>SOS</ThemedText>
       </Pressable>
 
+      {currentRide ? (
+        <Pressable 
+          style={styles.goToTripBtn} 
+          onPress={() => router.push({ pathname: '/(driver)/ride', params: { id: currentRide.id } })}
+        >
+          <ThemedText style={styles.goToTripText}>🚗 Go to Trip</ThemedText>
+        </Pressable>
+      ) : null}
+
       <View style={styles.bottomBar}>
         <ThemedText style={[styles.bottomLabel, !profile.online ? styles.bottomActive : null]}>OFFLINE</ThemedText>
         <Switch
@@ -655,6 +664,25 @@ const styles = StyleSheet.create({
   sosText: {
     color: '#fff',
     fontWeight: '700',
+  },
+  goToTripBtn: {
+    position: 'absolute',
+    bottom: 140,
+    right: 16,
+    backgroundColor: '#FF9800',
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  goToTripText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
   },
   bottomBar: {
     position: 'absolute',
