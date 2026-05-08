@@ -2,7 +2,7 @@ import * as Location from 'expo-location';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { MapView, Marker, Polyline } from '@/src/components/Map';
@@ -22,6 +22,8 @@ export default function DriverRideScreen() {
   const [rating, setRating] = useState<number>(0);
   const [driverLoc, setDriverLoc] = useState<LatLng | null>(null);
   const [showMessages, setShowMessages] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -88,14 +90,32 @@ export default function DriverRideScreen() {
     });
   };
 
+  const CANCEL_REASONS = [
+    'Rider not showing up',
+    'Rider asked to cancel',
+    'Unable to contact rider',
+    'Wrong pickup location',
+    'Traffic too heavy',
+    'Vehicle broke down',
+    'Personal emergency',
+    'Other',
+  ];
+
   const cancelRide = async () => {
     if (!id) return;
     await updateDoc(doc(db, 'rides', id), {
       status: 'cancelled',
       driverId: null,
+      cancelReason: cancelReason || null,
+      cancelledBy: 'driver',
       updatedAt: serverTimestamp(),
     });
+    setShowCancelModal(false);
     router.replace('/(driver)');
+  };
+
+  const confirmCancel = () => {
+    setShowCancelModal(true);
   };
 
   const submitRating = async (stars: number) => {
@@ -187,7 +207,7 @@ export default function DriverRideScreen() {
           </View>
 
           {(ride.status === 'driver_assigned' || ride.status === 'driver_arriving') && (
-            <Pressable style={styles.cancelBtn} onPress={cancelRide}>
+            <Pressable style={styles.cancelBtn} onPress={confirmCancel}>
               <ThemedText style={styles.cancelText}>Cancel ride</ThemedText>
             </Pressable>
           )}
@@ -258,6 +278,42 @@ export default function DriverRideScreen() {
         otherPartyName={ride?.riderName || 'Rider'}
         onClose={() => setShowMessages(false)}
       />
+
+      <Modal visible={showCancelModal} transparent animationType="fade">
+        <View style={styles.cancelModalOverlay}>
+          <View style={styles.cancelModalContent}>
+            <ThemedText type="title" style={styles.cancelModalTitle}>Cancel Ride</ThemedText>
+            <ThemedText style={styles.cancelModalSub}>Please select a reason for cancelling:</ThemedText>
+            
+            <ScrollView style={styles.cancelReasonsList}>
+              {CANCEL_REASONS.map((reason) => (
+                <Pressable
+                  key={reason}
+                  style={[styles.cancelReasonBtn, cancelReason === reason && styles.cancelReasonBtnSelected]}
+                  onPress={() => setCancelReason(reason)}
+                >
+                  <ThemedText style={[styles.cancelReasonText, cancelReason === reason && styles.cancelReasonTextSelected]}>
+                    {reason}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            <View style={styles.cancelModalButtons}>
+              <Pressable style={styles.cancelModalCancelBtn} onPress={() => setShowCancelModal(false)}>
+                <ThemedText style={styles.cancelModalCancelText}>Keep Ride</ThemedText>
+              </Pressable>
+              <Pressable 
+                style={[styles.cancelModalConfirmBtn, !cancelReason && styles.cancelModalConfirmBtnDisabled]} 
+                onPress={cancelRide}
+                disabled={!cancelReason}
+              >
+                <ThemedText style={styles.cancelModalConfirmText}>Confirm Cancel</ThemedText>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {showCompleted && (
         <View style={styles.completeOverlay}>
@@ -546,5 +602,81 @@ const styles = StyleSheet.create({
     color: '#0B9E3D',
     fontSize: 16,
     fontWeight: '800',
+  },
+  cancelModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  cancelModalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  cancelModalTitle: {
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  cancelModalSub: {
+    textAlign: 'center',
+    color: '#666',
+    marginBottom: 20,
+  },
+  cancelReasonsList: {
+    maxHeight: 300,
+  },
+  cancelReasonBtn: {
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 10,
+  },
+  cancelReasonBtnSelected: {
+    borderColor: '#0B9E3D',
+    backgroundColor: '#e8f5e9',
+  },
+  cancelReasonText: {
+    fontSize: 15,
+    color: '#333',
+  },
+  cancelReasonTextSelected: {
+    color: '#0B9E3D',
+    fontWeight: '700',
+  },
+  cancelModalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 10,
+  },
+  cancelModalCancelBtn: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
+  },
+  cancelModalCancelText: {
+    color: '#666',
+    fontWeight: '700',
+  },
+  cancelModalConfirmBtn: {
+    flex: 1,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: '#e53935',
+    alignItems: 'center',
+  },
+  cancelModalConfirmBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
+  cancelModalConfirmText: {
+    color: '#fff',
+    fontWeight: '700',
   },
 });
