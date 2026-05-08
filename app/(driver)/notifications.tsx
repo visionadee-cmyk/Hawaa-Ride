@@ -7,6 +7,7 @@ import { useDriverSettings } from '@/src/settings/DriverSettingsContext';
 import { playRingtone, type Ringtone } from '@/src/settings/sound';
 
 const RINGTONES: { label: string; value: Ringtone; icon: string }[] = [
+  { label: 'Alarm', value: 'alarm', icon: '🔊' },
   { label: 'Beep', value: 'beep', icon: '🔔' },
   { label: 'Chime', value: 'chime', icon: '🎵' },
   { label: 'Pulse', value: 'pulse', icon: '💓' },

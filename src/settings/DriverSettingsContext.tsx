@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export type Ringtone = 'beep' | 'chime' | 'pulse' | 'bell';
+export type Ringtone = 'beep' | 'chime' | 'pulse' | 'bell' | 'alarm';
 
 export type DriverSettings = {
   overlayEnabled: boolean;
@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: DriverSettings = {
   overlayEnabled: true,
   appearance: 'light',
   restrictionsSkipped: false,
-  ringtone: 'beep',
+  ringtone: 'alarm',
   vibrationEnabled: true,
   soundEnabled: true,
   notificationVolume: 1,

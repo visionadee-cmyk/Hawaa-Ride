@@ -1,18 +1,28 @@
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 
-export type Ringtone = 'beep' | 'chime' | 'pulse' | 'bell';
+export type Ringtone = 'beep' | 'chime' | 'pulse' | 'bell' | 'alarm';
 
 const WEB_FREQUENCIES: Record<Ringtone, number> = {
   beep: 880,
   chime: 1200,
   pulse: 600,
   bell: 500,
+  alarm: 800,
 };
 
 async function playNativeBeep() {
   try {
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Play alarm pattern - multiple vibrations with pauses
+    const alarmPattern = async () => {
+      for (let i = 0; i < 5; i++) {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    };
+    alarmPattern();
   } catch {
     // ignore
   }
@@ -51,6 +61,15 @@ export async function playRingtone(tone: Ringtone, volume = 1) {
       g.gain.exponentialRampToValueAtTime(0.3 * volume, now + 0.3);
       g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
       o.stop(now + 0.55);
+    } else if (tone === 'alarm') {
+      // Alarm pattern: repeating beep for ~3 seconds
+      const alarmDuration = 3.0;
+      for (let i = 0; i < 6; i++) {
+        const t = now + i * 0.5;
+        g.gain.setValueAtTime(0.3 * volume, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      }
+      o.stop(now + alarmDuration);
     } else if (tone === 'bell') {
       // Bell with decay
       g.gain.exponentialRampToValueAtTime(0.0001, now + 1.0);
