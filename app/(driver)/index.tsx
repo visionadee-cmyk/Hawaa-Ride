@@ -26,7 +26,7 @@ import { haversineKm } from '@/src/utils/geo';
 
 export default function DriverHome() {
   const router = useRouter();
-  const { firebaseUser, logout } = useAuth();
+  const { firebaseUser, logout, setRole } = useAuth();
   const { settings } = useDriverSettings();
   const mapRef = useRef<any>(null);
 
@@ -298,6 +298,16 @@ export default function DriverHome() {
         <View style={{ marginTop: 12 }}>
           <Button title="Register" onPress={() => router.push('/(driver)/register')} />
         </View>
+        <View style={{ marginTop: 12 }}>
+          <Button 
+            title="Switch to Rider" 
+            onPress={async () => {
+              await setRole('rider');
+              router.replace('/(rider)');
+            }} 
+            color="#2196F3"
+          />
+        </View>
       </View>
     );
   }
@@ -311,6 +321,16 @@ export default function DriverHome() {
         </ThemedText>
         <View style={{ marginTop: 12 }}>
           <Button title="Refresh" onPress={() => {}} />
+        </View>
+        <View style={{ marginTop: 12 }}>
+          <Button 
+            title="Switch to Rider" 
+            onPress={async () => {
+              await setRole('rider');
+              router.replace('/(rider)');
+            }} 
+            color="#2196F3"
+          />
         </View>
       </View>
     );
