@@ -246,9 +246,9 @@ export default function RiderHome() {
     if (!trimmed || trimmed.length < 2) return [];
     
     try {
-      // Use OpenStreetMap Nominatim API for real addresses
+      // Use OpenStreetMap Nominatim API - search broadly first
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed + ', Maldives')}&limit=15&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&limit=25&addressdetails=1&countrycodes=mv`,
         {
           headers: {
             'User-Agent': 'HawaaRide/1.0',
@@ -263,24 +263,43 @@ export default function RiderHome() {
       const data = await response.json();
       
       if (Array.isArray(data) && data.length > 0) {
-        // Format results with proper display names including road/street info
+        // Format results like Google Maps - show place name first, then address
         const results = data.map((item: any) => {
           let displayName = item.display_name;
           
-          // Try to get a cleaner name with road/street info
-          if (item.address) {
+          // Build display name: place name first, then road/area
+          if (item.address || item.name) {
             const parts = [];
-            if (item.address.road || item.address.street) {
-              parts.push(item.address.road || item.address.street);
+            
+            // First: use the actual place name if available (e.g., "Stelco")
+            if (item.name) {
+              parts.push(item.name);
             }
-            if (item.address.neighbourhood) {
+            
+            // Then: house number if available
+            if (item.address?.house_number && !parts.includes(item.address.house_number)) {
+              parts.push(item.address.house_number);
+            }
+            
+            // Then: road/street
+            if (item.address?.road && !parts.includes(item.address.road)) {
+              parts.push(item.address.road);
+            }
+            
+            // Then: area/neighborhood
+            if (item.address?.neighbourhood && !parts.includes(item.address.neighbourhood)) {
               parts.push(item.address.neighbourhood);
             }
-            if (item.address.suburb) {
+            if (item.address?.suburb && !parts.includes(item.address.suburb)) {
               parts.push(item.address.suburb);
             }
-            if (item.address.city || item.address.town || item.address.village) {
-              parts.push(item.address.city || item.address.town || item.address.village);
+            
+            // Finally: city/town
+            if (item.address?.city || item.address?.town || item.address?.village) {
+              const city = item.address.city || item.address.town || item.address.village;
+              if (!parts.includes(city)) {
+                parts.push(city);
+              }
             }
             
             if (parts.length > 0) {
